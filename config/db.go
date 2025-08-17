@@ -1,17 +1,22 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 // var DB *sql.DB
 // var DB *gorm.DB
 var DB *sqlx.DB
+var MongoDB *mongo.Client
 
 func ConnectDB() {
 	err := godotenv.Load()
@@ -36,6 +41,18 @@ func ConnectDB() {
 	// 	fmt.Println("Error connecting database: ", err)
 	// 	panic(err)
 	// }
-	fmt.Println("Successfully connected to the database")
+	fmt.Println("Successfully connected to the psql database")
 	DB = db
+}
+
+func ConnectMongo() {
+	opts := options.Client().ApplyURI("mongodb://localhost:27017")
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(opts)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected to the mongodb database")
+	MongoDB = client
 }

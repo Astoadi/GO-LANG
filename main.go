@@ -16,6 +16,7 @@ import (
 func main() {
 
 	config.ConnectDB()
+	config.ConnectMongo()
 
 	app := fiber.New()
 

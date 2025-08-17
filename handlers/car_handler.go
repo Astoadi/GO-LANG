@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"cars/config"
 	"cars/models"
 	"encoding/json"
 	"fmt"
@@ -38,7 +39,18 @@ func CreateCar(c *fiber.Ctx) error {
 			Details: err.Error(),
 		})
 	}
-	car.Insert()
+	//car.Insert()
+
+	//mongodb
+	coll := config.MongoDB.Database("car-inventory").Collection("cars")
+	_, err := coll.InsertOne(c.Context(), car)
+	if err != nil {
+		fmt.Printf("car not saved %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(&models.Errors{
+			Error:   "unable to add a car",
+			Details: err.Error(),
+		})
+	}
 
 	fmt.Println("Car saved successfully with ID:", car.ID)
 	return c.Status(fiber.StatusCreated).JSON(car)
